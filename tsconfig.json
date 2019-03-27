@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    // "allowSyntheticDefaultImports": true,
+    // "allowUnreachableCode": false,
+    // "declaration": false,
+    "experimentalDecorators": true,
+    "lib": [
+      "dom",
+      "es2018"
+    ],
+    "moduleResolution": "node",
+    "module": "esnext",
+    "target": "esnext",
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "outDir": "dist",
+  },
+  "include": [
+    "src/index.ts",
+  ],
+}

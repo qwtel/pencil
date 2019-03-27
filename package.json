@@ -1,0 +1,13 @@
+{
+  "name": "pencil",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Florian Klampfer <mail@qwtel.com> (https://qwtel.com/)",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "type-fest": "^0.3.0"
+  }
+}
