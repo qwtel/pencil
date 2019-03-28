@@ -1,22 +1,31 @@
 import * as d from '../stencil/src/declarations';
+import { toDashCase } from '../stencil/src/util/helpers';
+import { formatBrowserLoaderComponent } from '../stencil/src/util/data-serialize'
 
-import "./build";
-import { defineCustomElement, h } from './define';
-import { toDashCase } from '../../stencil/src/util/helpers';
+import './BUILDs';
+import { h, defineCustomElement } from './define';
+
+import { getComponentDecoratorMeta } from './decorators/component-decorator';
+import { getElementDecoratorMeta } from './decorators/element-decorator';
+import { getPropDecoratorMeta } from './decorators/prop-decorator';
+import { getMethodDecoratorMeta } from './decorators/method-decorator';
+import { getStateDecoratorMeta } from './decorators/state-decorator';
+import { updateWatchDecoratorMeta } from './decorators/watch-decorator';
+
+export { h };
+
+export type Type = StringConstructor | NumberConstructor | BooleanConstructor | "Any";
+export type PencilPropOptions = { type: Type, required?: boolean, optional?: boolean };
 
 const propertiesMap = new WeakMap<object, Map<string, object>>();
 const eventsMap = new WeakMap<object, Map<string, object>>();
 
-export { h };
-
-type Type = { type: StringConstructor | NumberConstructor | BooleanConstructor | "Any" };
+const membersMetaMap = new WeakMap<object, d.MembersMeta>();
+const eventsMetaMap = new WeakMap<object, d.EventMeta[]>();
+const listenMetaMap = new WeakMap<object, d.ListenMeta[]>();
 
 export function Component(opts?: d.ComponentOptions): ClassDecorator {
   return <TFunction extends Function>(Impl: TFunction): TFunction | void => {
-
-    // console.log(import.meta.url);
-    // fetch(opts.styleUrl).then(x => x.text()).then(x => console.log(x))
-
     Object.defineProperty(Impl, 'is', {
       enumerable: true,
       get() { return opts.tag },
@@ -50,26 +59,36 @@ export function Component(opts?: d.ComponentOptions): ClassDecorator {
       });
     }
 
-    defineCustomElement(window, (Impl as any).COMPONENTS as d.ComponentHostData, {
+    const cmpData = formatBrowserLoaderComponent({
+      ...getComponentDecoratorMeta(opts),
+      membersMeta: membersMetaMap.get(Impl.prototype),
+      eventsMeta: eventsMetaMap.get(Impl.prototype),
+      listenersMeta: listenMetaMap.get(Impl.prototype),
+      componentConstructor: Impl as d.ComponentConstructor,
+      componentClass: Impl.name,
+    });
+
+    defineCustomElement(window, cmpData, {
       hydratedCssClass: 'hydrated',
       namespace: opts.tag,
-      // resourcesUrl?: string;
-      // exclude?: string[];
-    }, Impl as d.ComponentConstructor).then(x => console.log(x));
+      resourcesUrl: undefined, // string;
+      exclude: undefined, // string[];
+    }, Impl as d.ComponentConstructor);
   }
 }
 
 export function Element(): PropertyDecorator {
   return (target: object, propertyKey: string): void => {
     const properties = propertiesMap.get(target) || {} as any;
-    properties[propertyKey] = {
-      elementRef: true,
-    };
+    properties[propertyKey] = { elementRef: true };
     propertiesMap.set(target, properties)
+
+    const membersMeta = membersMetaMap.get(target) || {} as d.MembersMeta;
+    membersMetaMap.set(target, { ...membersMeta, ...getElementDecoratorMeta(propertyKey) });
   };
 }
 
-export function Prop(opts?: d.PropOptions & Type): PropertyDecorator {
+export function Prop(opts?: d.PropOptions & PencilPropOptions): PropertyDecorator {
   return (target: object, propertyKey: string): void => {
     const properties = propertiesMap.get(target) || {} as any;
     const entry = properties[propertyKey];
@@ -80,26 +99,31 @@ export function Prop(opts?: d.PropOptions & Type): PropertyDecorator {
       ...opts,
     };
     propertiesMap.set(target, properties)
+
+    const membersMeta = membersMetaMap.get(target) || {} as d.MembersMeta;
+    membersMetaMap.set(target, { ...membersMeta, ...getPropDecoratorMeta(opts, propertyKey) });
   };
 }
 
-export function Method(_opts?: d.MethodOptions): MethodDecorator {
+export function Method(opts?: d.MethodOptions): MethodDecorator {
   return <T>(target: object, propertyKey: string, _descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> | void => {
     const properties = propertiesMap.get(target) || {} as any;
-    properties[propertyKey] = {
-      method: true,
-    };
+    properties[propertyKey] = { method: true };
     propertiesMap.set(target, properties)
+
+    const membersMeta = membersMetaMap.get(target) || {} as d.MembersMeta;
+    membersMetaMap.set(target, { ...membersMeta, ...getMethodDecoratorMeta(opts, propertyKey) });
   };
 }
 
 export function State(): PropertyDecorator {
   return (target: object, propertyKey: string): void => {
     const properties = propertiesMap.get(target) || {} as any;
-    properties[propertyKey] = {
-      state: true,
-    };
+    properties[propertyKey] = { state: true };
     propertiesMap.set(target, properties)
+
+    const membersMeta = membersMetaMap.get(target) || {} as d.MembersMeta;
+    membersMetaMap.set(target, { ...membersMeta, ...getStateDecoratorMeta(propertyKey) });
   };
 }
 
@@ -112,6 +136,9 @@ export function Watch(propName: string): MethodDecorator {
       watchCallbacks: (entry.watchCallbacks || []).concat(propertyKey),
     };
     propertiesMap.set(target, properties)
+
+    const membersMeta = membersMetaMap.get(target) || {} as d.MembersMeta;
+    updateWatchDecoratorMeta(propertyKey, propName, membersMeta);
   };
 }
 
