@@ -2,7 +2,7 @@ import * as d from '../stencil/src/declarations';
 import { toDashCase } from '../stencil/src/util/helpers';
 import { formatBrowserLoaderComponent } from '../stencil/src/util/data-serialize'
 
-import './BUILDs';
+import './BUILD';
 import { h, defineCustomElement } from './define';
 
 import { getComponentDecoratorMeta } from './decorators/component-decorator';
