@@ -11,6 +11,9 @@ import { getPropDecoratorMeta } from './decorators/prop-decorator';
 import { getMethodDecoratorMeta } from './decorators/method-decorator';
 import { getStateDecoratorMeta } from './decorators/state-decorator';
 import { updateWatchDecoratorMeta } from './decorators/watch-decorator';
+import { getEventDecoratorMeta } from './decorators/event-docorator';
+
+export { ComponentDidLoad, ComponentDidUnload, ComponentDidUpdate, ComponentWillLoad, ComponentWillUpdate, ComponentInstance as ComponentInterface, StencilConfig as Config, EventEmitter, EventListenerEnable, FunctionalComponent, QueueApi, JSXElements, Hyperscript } from '../stencil/src/declarations/index';
 
 export { h };
 
@@ -61,6 +64,7 @@ export function Component(opts?: d.ComponentOptions): ClassDecorator {
 
     const cmpData = formatBrowserLoaderComponent({
       ...getComponentDecoratorMeta(opts),
+      bundleIds: { modeName: '' },
       membersMeta: membersMetaMap.get(Impl.prototype),
       eventsMeta: eventsMetaMap.get(Impl.prototype),
       listenersMeta: listenMetaMap.get(Impl.prototype),
@@ -68,7 +72,7 @@ export function Component(opts?: d.ComponentOptions): ClassDecorator {
       componentClass: Impl.name,
     });
 
-    defineCustomElement(window, cmpData, {
+    defineCustomElement(window, [cmpData], {
       hydratedCssClass: 'hydrated',
       namespace: opts.tag,
       resourcesUrl: undefined, // string;
@@ -152,7 +156,7 @@ export function Event(opts?: d.EventOptions): PropertyDecorator {
   return (target: object, propertyKey: string): void => {
     const events = eventsMap.get(target) || [] as any;
     events.push({
-      eventName: toDashCase(propertyKey),
+      name: toDashCase(propertyKey),
       method: propertyKey,
       bubbles: true,
       cancelable: true,
@@ -160,5 +164,8 @@ export function Event(opts?: d.EventOptions): PropertyDecorator {
       ...opts,
     });
     eventsMap.set(target, events);
+
+    const eventsMeta = eventsMetaMap.get(target) || [] as any;
+    eventsMetaMap.set(target, [...eventsMeta, getEventDecoratorMeta(propertyKey, opts)]);
   };
 }

@@ -1,75 +1,71 @@
-// import * as d from '../../stencil/src/declarations';
-// // import { buildWarn } from '../../util';
-// // import { getAttributeTypeInfo, serializeSymbol } from './utils';
-// // import { getDeclarationParameters, isDecoratorNamed, isPropertyWithDecorators } from './utils';
-// // import ts from 'typescript';
+import * as d from '../../stencil/src/declarations';
+// import { buildWarn } from '../../util';
+// import { getAttributeTypeInfo, serializeSymbol } from './utils';
+// import { getDeclarationParameters, isDecoratorNamed, isPropertyWithDecorators } from './utils';
+// import ts from 'typescript';
 
-
-// export function getEventDecoratorMeta(diagnostics: d.Diagnostic[], checker: ts.TypeChecker, classNode: ts.ClassDeclaration, sourceFile: ts.SourceFile) {
+export function getEventDecoratorMeta(propertyKey: string, eventOptions: d.EventOptions) {
 //   return classNode.members
 //     .filter(isPropertyWithDecorators)
 //     .reduce((membersMeta, member: ts.PropertyDeclaration) => {
-//       const elementDecorator = member.decorators.find(isDecoratorNamed('Event'));
-//       if (elementDecorator == null) {
-//         return membersMeta;
-//       }
+    //   const elementDecorator = member.decorators.find(isDecoratorNamed('Event'));
+    //   if (elementDecorator == null) {
+    //     return membersMeta;
+    //   }
 
-//       const [ eventOptions ] = getDeclarationParameters<d.EventOptions>(elementDecorator);
-//       const metadata = convertOptionsToMeta(diagnostics, eventOptions, member.name.getText());
+    //   const [ eventOptions ] = getDeclarationParameters<d.EventOptions>(elementDecorator);
+      const metadata = convertOptionsToMeta(eventOptions, propertyKey);
+      return metadata;
 
-//       if (member.type) {
-//         const genericType = gatherEventEmitterGeneric(member.type);
-//         if (genericType) {
-//           metadata.eventType = {
-//             text: genericType.getText(),
-//             optional: false,
-//             required: false,
-//           };
-//           if (ts.isTypeReferenceNode(genericType)) {
-//             metadata.eventType.typeReferences = getAttributeTypeInfo(member, sourceFile);
-//           }
-//         }
-//       }
+    //   if (eventOptions.type) {
+    //       metadata.eventType = {
+    //         text: eventOptions.type.name,
+    //         optional: false,
+    //         required: false,
+    //       };
+        //   if (ts.isTypeReferenceNode(genericType)) {
+        //     metadata.eventType.typeReferences = getAttributeTypeInfo(member, sourceFile);
+        //   }
+    //   }
 
-//       if (metadata) {
-//         const symbol = checker.getSymbolAtLocation(member.name);
-//         metadata.jsdoc = serializeSymbol(checker, symbol);
-//         metadata.jsdoc.name = metadata.eventName;
+    //   if (metadata) {
+        // const symbol = checker.getSymbolAtLocation(member.name);
+        // metadata.jsdoc = serializeSymbol(checker, symbol);
+        // metadata.jsdoc.name = metadata.eventName;
+        // membersMeta.push(metadata);
+    //   }
 
-//         membersMeta.push(metadata);
-//       }
-
-//       return membersMeta;
-//     }, [] as d.EventMeta[]);
-// }
+    //   return membersMeta;
+    // }, [] as d.EventMeta[]);
+}
 
 
-// export function convertOptionsToMeta(diagnostics: d.Diagnostic[], rawEventOpts: d.EventOptions = {}, memberName: string) {
-//   if (!memberName) {
-//     return null;
-//   }
-//   return {
-//     eventMethodName: memberName,
-//     eventName: getEventName(diagnostics, rawEventOpts, memberName),
-//     eventBubbles: typeof rawEventOpts.bubbles === 'boolean' ? rawEventOpts.bubbles : true,
-//     eventCancelable: typeof rawEventOpts.cancelable === 'boolean' ? rawEventOpts.cancelable : true,
-//     eventComposed: typeof rawEventOpts.composed === 'boolean' ? rawEventOpts.composed : true
-//   } as d.EventMeta;
-// }
+export function convertOptionsToMeta(rawEventOpts: d.EventOptions = {}, memberName: string) {
+  if (!memberName) {
+    return null;
+  }
+  return {
+    eventMethodName: memberName,
+    eventName: getEventName(rawEventOpts, memberName),
+    eventBubbles: typeof rawEventOpts.bubbles === 'boolean' ? rawEventOpts.bubbles : true,
+    eventCancelable: typeof rawEventOpts.cancelable === 'boolean' ? rawEventOpts.cancelable : true,
+    eventComposed: typeof rawEventOpts.composed === 'boolean' ? rawEventOpts.composed : true
+  } as d.EventMeta;
+}
 
 
-// export function getEventName(diagnostics: d.Diagnostic[], rawEventOpts: d.EventOptions, memberName: string) {
-//   if (typeof rawEventOpts.eventName === 'string' && rawEventOpts.eventName.trim().length > 0) {
-//     // always use the event name if given
-//     return rawEventOpts.eventName.trim();
-//   }
+export function getEventName(rawEventOpts: d.EventOptions, memberName: string) {
+  if (typeof rawEventOpts.eventName === 'string' && rawEventOpts.eventName.trim().length > 0) {
+    // always use the event name if given
+    return rawEventOpts.eventName.trim();
+  }
 
-//   // event name wasn't provided
-//   // so let's default to use the member name
-//   validateEventEmitterMemeberName(diagnostics, memberName);
+  // event name wasn't provided
+  // so let's default to use the member name
+  //   validateEventEmitterMemeberName(diagnostics, memberName);
 
-//   return memberName;
-// }
+  return memberName;
+}
 
 
 // export function validateEventEmitterMemeberName(diagnostics: d.Diagnostic[], memberName: string) {
@@ -86,7 +82,7 @@
 // }
 
 
-// function gatherEventEmitterGeneric(type: ts.TypeNode): ts.TypeNode | null {
+// function gatherEventEmitterGeneric(type: Type): ts.TypeNode | null {
 //   if (ts.isTypeReferenceNode(type) &&
 //     ts.isIdentifier(type.typeName) &&
 //     type.typeName.text === 'EventEmitter' &&
