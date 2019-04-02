@@ -18,6 +18,8 @@ export { ComponentDidLoad, ComponentDidUnload, ComponentDidUpdate, ComponentWill
 export { h };
 
 export type Type = StringConstructor | NumberConstructor | BooleanConstructor | "Any";
+
+export type PencilComponentOptions = { namespace?: string };
 export type PencilPropOptions = { type: Type, required?: boolean, optional?: boolean };
 
 const propertiesMap = new WeakMap<object, Map<string, object>>();
@@ -27,7 +29,7 @@ const membersMetaMap = new WeakMap<object, d.MembersMeta>();
 const eventsMetaMap = new WeakMap<object, d.EventMeta[]>();
 const listenMetaMap = new WeakMap<object, d.ListenMeta[]>();
 
-export function Component(opts?: d.ComponentOptions): ClassDecorator {
+export function Component(opts?: d.ComponentOptions & PencilComponentOptions): ClassDecorator {
   return <TFunction extends Function>(Impl: TFunction): TFunction | void => {
     Object.defineProperty(Impl, 'is', {
       enumerable: true,
@@ -74,7 +76,7 @@ export function Component(opts?: d.ComponentOptions): ClassDecorator {
 
     defineCustomElement(window, [cmpData], {
       hydratedCssClass: 'hydrated',
-      namespace: opts.tag,
+      namespace: opts.namespace,
       resourcesUrl: undefined, // string;
       exclude: undefined, // string[];
     }, Impl as d.ComponentConstructor);

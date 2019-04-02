@@ -2,7 +2,6 @@ import * as d from '../stencil/src/declarations';
 import { createComponentOnReadyPrototype } from '../stencil/src/client/loader';
 import { createPlatformMain } from '../stencil/src/client/platform-main';
 import { parseComponentLoader } from '../stencil/src/util/data-parse';
-// import { dashToPascalCase } from '../stencil/src/util/helpers';
 
 export { h } from '../stencil/src/renderer/vdom/h';
 
@@ -14,7 +13,7 @@ let initCmpOnReady = false;
 export function defineCustomElement(win: Window, cmpData: d.ComponentHostData | d.ComponentHostData[], opts: CustomElementsDefineOptions, Impl: d.ComponentConstructor) {
   let cmpDataArray = (Array.isArray(cmpData) ? cmpData : [cmpData]) as d.ComponentHostData[];
   const doc = win.document;
-  const hydratedCssClass = opts.hydratedCssClass || '__APP__HYDRATED__CSS__PLACEHOLDER__';
+  const hydratedCssClass = opts.hydratedCssClass || 'hydrated';
 
   const exclude = opts['exclude'];
   if (exclude) {
@@ -30,7 +29,7 @@ export function defineCustomElement(win: Window, cmpData: d.ComponentHostData | 
     doc.head.insertBefore(styleElm, doc.head.firstChild);
   }
 
-  const namespace = opts.namespace || '__APP__NAMESPACE__PLACEHOLDER__';
+  const namespace = opts.namespace || 'pencil-runtime';
 
   if (!initCmpOnReady) {
     initCmpOnReady = true;
