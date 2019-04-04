@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/qwtel/pencil/issues"
   },
-  "homepage": "https://qwtel.com/pencil/"
+  "homepage": "https://qwtel.com/pencil/",
+  "tags": [
+    "webcomponents",
+    "custom-elements",
+    "stencil",
+    "stenciljs"
+  ]
 }
