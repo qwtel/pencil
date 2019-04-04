@@ -18,12 +18,12 @@
   "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/qwtel/pencil.git"
+    "url": "https://github.com/qwtel/pencil-runtime.git"
   },
   "bugs": {
-    "url": "https://github.com/qwtel/pencil/issues"
+    "url": "https://github.com/qwtel/pencil-runtime/issues"
   },
-  "homepage": "https://qwtel.com/pencil/",
+  "homepage": "https://github.com/qwtel/pencil-runtime/",
   "keywords": [
     "webcomponents",
     "custom-elements",
