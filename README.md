@@ -1,5 +1,7 @@
 # Pencil Runtime
 
+__DEPRECATION NOTICE__: As it turns out, what I actually wanted was [LitElement](https://github.com/polymer/lit-element), which is very simialr in terms of API and usage.
+
 Standalone [Stencil](https://stenciljs.com/) runtime.
 
 *Stencil - Compiler + Extras = Pencil*
